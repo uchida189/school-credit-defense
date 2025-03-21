@@ -16,10 +16,10 @@ let sprite = Sprite({
 
 let loop = GameLoop({  // ゲームループ
   update: function() {
-    if(keyPressed('arrowup') && sprite.y > 0) {
+    if((keyPressed('arrowup') || keyPressed('w')) && sprite.y > 0) {
       console.log('up');
       sprite.y -= 2;
-    } else if(keyPressed('arrowdown') && sprite.y < canvas.height - sprite.height) {
+    } else if((keyPressed('arrowdown') || keyPressed('s')) && sprite.y < canvas.height - sprite.height) {
       console.log('down');
       sprite.y += 2;
     }
