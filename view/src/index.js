@@ -1,4 +1,4 @@
-import { init, Sprite, Pool, GameLoop, initKeys, keyPressed, collides, randInt, rand } from '../../node_modules/kontra/kontra.mjs';
+import { init, Sprite, Pool, GameLoop, initKeys, keyPressed, collides, randInt, Text } from '../../node_modules/kontra/kontra.mjs';
 import { ENEMY_SETTINGS } from './constants.js'; //敵のタイプごとの設定
 
 let { canvas } = init();  // canvasを初期化
@@ -45,6 +45,18 @@ let base = Sprite({
   height: canvas.height,
   health: 1200    // 耐久値
 });
+
+// スコア
+let score = Text({
+  text: 'Score: ' + base.health,
+  font: '32px Arial',
+  color: 'black',
+  x: 16,
+  y: 16,
+  anchor: {x: 0, y: 0},
+  textAlign: 'center'
+});
+
 
 // 弾丸を発射する関数
 const fireBullet = (x, y, dx, damage) => {
@@ -115,6 +127,9 @@ let loop = GameLoop({  // ゲームループ
       spawnEnemy(1, 1, randInt(1, 3));
     }
     
+    // スコアの更新
+    score.text = 'Score: ' + base.health;
+    
     base.update();
     player.update(dt);
     enemyPool.update();
@@ -125,6 +140,7 @@ let loop = GameLoop({  // ゲームループ
     player.render();  // スプライトを描画
     enemyPool.render();
     bulletPool.render();
+    score.render();
   }
 });
 
