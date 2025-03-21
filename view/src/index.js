@@ -1,24 +1,33 @@
 import { init, Sprite, Pool, GameLoop, initKeys, keyPressed, collides, randInt, Text } from '../../node_modules/kontra/kontra.mjs';
-import { ENEMY_SETTINGS } from './constants.js'; //敵のタイプごとの設定
+import { ENEMY_SETTINGS, PLAYER_TYPE_SETTINGS } from './constants.js'; //敵のタイプごとの設定
 
 let { canvas } = init();  // canvasを初期化
 initKeys();  // キーボード入力を初期化
 
+let playerType = 1;  // プレイヤータイプ
+
 // プレイヤー
+// let player = null;
+const playerSettings = PLAYER_TYPE_SETTINGS[playerType];
+
 let player = Sprite({
-  x: 100,        // x座標
-  y: 80,         // y座標
-  color: 'red',  // 色
-  width: 20,     // 幅
-  height: 40,    // 高さ
-  attackSpeed: 0.3,           // 攻撃速度 (秒)
+  x: 100,                       // x座標
+  y: canvas.height / 2,         // y座標
+  width: 20,                    // 幅
+  height: 40,                   // 高さ
+  color: playerSettings.color,  // 色
+  moveSpeed: playerSettings.moveSpeed,      // 移動速度
+  attackSpeed: playerSettings.attackSpeed,  // 攻撃速度 (秒)
+  attackPower: playerSettings.attackPower,  // 攻撃力
+  dropRate: playerSettings.dropRate,        // 弾の発射率
   timeSinceLastFire: 0,       // 最後に弾丸を発射してからの経過時間
   anchor: { x: 0.5, y: 0.5 }, // 中心を基準にする
+  items: [0, 0, 0],           // アイテムの所持数
   
   update(dt) {
     this.timeSinceLastFire += dt;  // 経過時間を更新
     if (this.timeSinceLastFire >= this.attackSpeed) {
-      fireBullet(this.x, this.y, 10, 10); // 弾を発射
+      fireBullet(this.x, this.y, 10, this.attackPower); // 弾を発射
       this.timeSinceLastFire = 0;     // タイマーをリセット
     }
   }
@@ -27,13 +36,13 @@ let player = Sprite({
 // 弾丸のプール
 let bulletPool = Pool({
   create: Sprite,
-  maxSize: 10,  // 最大数
+  maxSize: 20,  // 最大数
 });
 
 // 敵のプール
 let enemyPool = Pool({
   create: Sprite, // または、カスタムの Enemy クラス
-  maxSize: 50,    // 敵の最大数 (調整可能)
+  maxSize: 20,    // 敵の最大数 (調整可能)
 });
 
 // 陣地
@@ -41,7 +50,7 @@ let base = Sprite({
   x: 0,
   y: 0,
   color: 'gray',
-  width: 300,
+  width: 200,
   height: canvas.height,
   health: 1200    // 耐久値
 });
@@ -53,6 +62,16 @@ let score = Text({
   color: 'black',
   x: 16,
   y: 16,
+  anchor: {x: 0, y: 0},
+  textAlign: 'center'
+});
+// アイテムの所持数
+let itemText = Text({
+  text: 'Items: ' + player.items.join(', '),
+  font: '16px Arial',
+  color: 'black',
+  x: 16,
+  y: 48,
   anchor: {x: 0, y: 0},
   textAlign: 'center'
 });
@@ -86,6 +105,10 @@ function spawnEnemy(phase, difficulty, enemyType) {
     dx: settings.speed,      // 敵の速度
     health: settings.health, // 敵の体力
     attack: settings.attack, // 敵の攻撃力
+    
+    // update() {
+    //   this.advance();
+    // },
   });
 }
 
@@ -97,11 +120,11 @@ let loop = GameLoop({  // ゲームループ
     // プレイヤーの操作
     if((keyPressed('arrowup') || keyPressed('w')) && player.y > player.height / 2) {
       console.log('up');
-      player.y -= 4;
+      player.y -= player.moveSpeed;
     } else if((keyPressed('arrowdown') || keyPressed('s')) && player.y < canvas.height - player.height / 2) {
       console.log('down');
-      player.y += 4;
-    }
+      player.y += player.moveSpeed;
+    };
     
     // 敵の衝突判定
     enemies.forEach(enemy => {
@@ -113,8 +136,11 @@ let loop = GameLoop({  // ゲームループ
       } else if (bullet) {        // 弾丸との衝突判定
         enemy.color = 'white';    // ヒットエフェクト
         enemy.health -= bullet.damage;
-        if (enemy.health <= 0) {
+        if (enemy.health <= 0) {  // 敵が倒された場合の処理
           enemy.ttl = 0;
+          if (Math.random() < player.dropRate) {
+            player.items[randInt(0, player.items.length - 1)] += 1;  // アイテムをドロップ
+          }
         }
         bullet.ttl = 0;
       } else {
@@ -124,11 +150,12 @@ let loop = GameLoop({  // ゲームループ
     
     // 敵の生成
     if (enemies.length < 10) {
-      spawnEnemy(1, 1, randInt(1, 3));
+      spawnEnemy(1, 1, randInt(1, 5));
     }
     
     // スコアの更新
     score.text = 'Score: ' + base.health;
+    itemText.text = 'Items: ' + player.items.join(', ');
     
     base.update();
     player.update(dt);
@@ -141,6 +168,7 @@ let loop = GameLoop({  // ゲームループ
     enemyPool.render();
     bulletPool.render();
     score.render();
+    itemText.render();
   }
 });
 
