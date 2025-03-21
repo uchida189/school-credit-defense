@@ -1,15 +1,29 @@
-import { init, initKeys, initPointer, GameLoop } from 'kontra';
-import { game } from './game.js';
+import { init, Sprite, GameLoop } from '../../node_modules/kontra/kontra.mjs';
+// import { init, Sprite, GameLoop } from 'kontra';
 
-let { canvas, context } = init();
-initKeys();
-initPointer();
+let { canvas } = init();  // canvasを初期化
+console.log(canvas.width, canvas.height);
 
-// ゲームループの開始 (game.js に処理を委譲)
-let loop = GameLoop({
-    update: game.update.bind(game),  // 1フレームごとの処理
-    render: game.render.bind(game)   // 1フレームごとの描画処理
+let sprite = Sprite({
+  x: 100,        // x座標
+  y: 80,         // y座標
+  color: 'red',  // 色
+  width: 20,     // 幅
+  height: 40,    // 高さ
+  dx: 2          // x座標の増加量
 });
 
-game.init(canvas, loop); // ゲームの初期化処理 (game.js で定義)
-loop.start();
+let loop = GameLoop({  // ゲームループ
+  update: function() {
+    sprite.update();  // スプライトを更新
+    
+    if (sprite.x > canvas.width) {
+      sprite.x = -sprite.width;
+    }
+  },
+  render: function() {
+    sprite.render();  // スプライトを描画
+  }
+});
+
+loop.start();  // ゲームループを開始
