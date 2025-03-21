@@ -22,3 +22,30 @@ export const PLAYER_TYPE_SETTINGS = {
         dropRate: 0.2,
     }
 };
+
+export const ENEMY_SETTINGS = {
+    1: { // タイプ1
+        color: 'green',
+        width: 20,
+        height: 40,
+        speed: -2,
+        health: 100,
+        attack: 5,
+    },
+    2: { // タイプ2
+        color: 'blue',
+        width: 30,
+        height: 60,
+        speed: -1,
+        health: 200,
+        attack: 10,
+    },
+    3: { // タイプ3
+        color: 'purple',
+        width: 40,
+        height: 80,
+        speed: -0.5,
+        health: 300,
+        attack: 15,
+    }
+};
