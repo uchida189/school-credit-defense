@@ -55,6 +55,38 @@ let base = Sprite({
   health: 1200    // 耐久値
 });
 
+// アイテム2(ガバい)
+let item2 = Sprite({
+  x: 0,
+  y: 0,
+  color: 'darkred',
+  width: 10,
+  height: 50,
+  damage: 500,
+  anchor: { x: 0, y: 0.5 },
+  dx: 0,
+  ttl: 0,  // 存在時間
+  // timeSinceFire: 0,       // 弾丸を発射してからの経過時間
+  update() {
+    this.width *= 2;
+    if (this.width >= canvas.width) {
+      this.width /= 2;
+    }
+    if (this.width < 20) {
+      this.ttl = 0;
+    }
+    const enemies = enemyPool.getAliveObjects().filter(enemy => collides(this, enemy));
+    if (enemies.length > 0) {
+      enemies.forEach(enemy => {
+        enemy.health -= this.damage;
+        if (enemy.health <= 0) {
+          enemy.ttl = 0;
+        }
+      });
+    }
+  }
+});
+
 // スコア
 let score = Text({
   text: 'Score: ' + base.health,
@@ -126,6 +158,20 @@ let loop = GameLoop({  // ゲームループ
       player.y += player.moveSpeed;
     };
     
+    // アイテムの使用
+    if(keyPressed('1') && player.items[0] > 0) {
+      player.items[0] -= 1;
+      player.attackPower += 50;
+    } else if(keyPressed('2') && player.items[1] > 0) {
+      player.items[1] -= 1;
+      item2.x = player.x + player.width;
+      item2.y = player.y;
+      item2.ttl = 120;
+    } else if(keyPressed('3') && player.items[2] > 0) {
+      player.items[2] -= 1;
+      base.health < 1100 ? base.health += 100 : base.health = 1200;
+    }
+    
     // 敵の衝突判定
     enemies.forEach(enemy => {
       const bullet = bullets.find(bullet => collides(bullet, enemy));
@@ -161,6 +207,7 @@ let loop = GameLoop({  // ゲームループ
     player.update(dt);
     enemyPool.update();
     bulletPool.update();
+    item2.update();
   },
   render: function() {
     base.render();
@@ -169,6 +216,7 @@ let loop = GameLoop({  // ゲームループ
     bulletPool.render();
     score.render();
     itemText.render();
+    item2.render();
   }
 });
 
