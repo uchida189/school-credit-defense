@@ -14,13 +14,12 @@ export class StartScreen {
       font: '20px Arial, sans-serif'
     };
     
-    // 難易度選択ドロップダウン (簡易版)
+    // 難易度選択
     this.difficultyCaption = Text({
       x: 100,
       y: 50,
       text: '難易度',
-      font: '20px Arial',
-      color: 'white'
+      ...this.textOptions
     });
     this.difficultyPrevButton = Button({
       text: {
@@ -62,19 +61,51 @@ export class StartScreen {
       ]
     });
     
-    
     // 機体選択
+    this.playerTypeCaption = Text({
+      x: 100,
+      y: 150,
+      text: 'プレイヤータイプ',
+      ...this.textOptions
+    });
+    this.playerTypePrevButton = Button({
+      text: {
+        text: '<',
+        ...this.textOptions
+      },
+      onDown: () => {
+        // 選択された機体を取得
+        this.selectedPlayerType = this.playerTypes[(this.playerTypes.indexOf(this.selectedPlayerType) - 1 + this.playerTypes.length) % this.playerTypes.length];
+      }
+    });
+    this.playerTypeNextButton = Button({
+      text: {
+        text: '>',
+        ...this.textOptions
+      },
+      onDown: () => {
+        // 選択された機体を取得
+        this.selectedPlayerType = this.playerTypes[(this.playerTypes.indexOf(this.selectedPlayerType) + 1) % this.playerTypes.length];
+      }
+    });
     this.playerTypeText = Text({
+      width: 100,
+      text: `${this.selectedPlayerType}`,
+      ...this.textOptions,
+      textAlign: 'center'
+    });
+    this.playerTypeSelect = Grid({
       x: 100,
       y: 200,
-      text: `Player Type: ${this.selectedPlayerType}`,
-      font: '20px Arial',
-      color: 'white',
-      onDown: () => {
-        let currentIndex = this.playerTypes.indexOf(this.selectedPlayerType);
-        this.selectedPlayerType = this.playerTypes[(currentIndex + 1) % this.playerTypes.length];
-        this.playerTypeText.text = `Player Type: ${this.selectedPlayerType}`;
-        }
+      rowGap: 5,
+      colGap: 5,
+      flow: 'row',
+      anchor: { x: 0, y: 0.5 },
+      children: [
+        this.playerTypePrevButton,
+        this.playerTypeText,
+        this.playerTypeNextButton
+      ]
     });
 
     // ヘルプボタン (簡易版)
@@ -115,23 +146,19 @@ export class StartScreen {
 
   update() {
     this.difficultyText.text = this.selectedDifficulty;
+    this.playerTypeText.text = this.selectedPlayerType;
     
-    // this.difficultyText.update();
-    // this.difficultyPrevButton.update();
-    // this.difficultyNextButton.update();
     this.difficultySelect.update();
-    this.playerTypeText.update();
+    this.playerTypeSelect.update();
     this.helpButton.update();
     this.startButton.update();
   }
 
   render() {
     this.difficultyCaption.render();
-    // this.difficultyPrevButton.render();
-    // this.difficultyNextButton.render();
-    // this.difficultyText.render();
     this.difficultySelect.render();
-    this.playerTypeText.render();
+    this.playerTypeCaption.render();
+    this.playerTypeSelect.render();
     this.helpButton.render();
     this.startButton.render();
   }
