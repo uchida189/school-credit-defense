@@ -1,223 +1,238 @@
-import { init, Sprite, Pool, GameLoop, initKeys, keyPressed, collides, randInt, Text } from '../../node_modules/kontra/kontra.mjs';
-import { ENEMY_SETTINGS, PLAYER_TYPE_SETTINGS } from './constants.js'; //敵のタイプごとの設定
+import { init, initKeys, initPointer, GameLoop } from '../../node_modules/kontra/kontra.mjs';
+import { game } from './game.js';
 
-let { canvas } = init();  // canvasを初期化
-initKeys();  // キーボード入力を初期化
+let { canvas, context } = init();
+initKeys();
+initPointer();
 
-let playerType = 1;  // プレイヤータイプ
+// ゲームループの開始 (game.js に処理を委譲)
+let loop = GameLoop({
+    update: game.update.bind(game),  // 1フレームごとの処理
+    render: game.render.bind(game)   // 1フレームごとの描画処理
+});
 
-// プレイヤー
-// let player = null;
-const playerSettings = PLAYER_TYPE_SETTINGS[playerType];
+game.init(canvas, loop); // ゲームの初期化処理 (game.js で定義)
+loop.start();
+// import { init, Sprite, Pool, GameLoop, initKeys, keyPressed, collides, randInt, Text } from '../../node_modules/kontra/kontra.mjs';
+// import { ENEMY_SETTINGS, PLAYER_TYPE_SETTINGS } from './constants.js'; //敵のタイプごとの設定
 
-let player = Sprite({
-  x: 100,                       // x座標
-  y: canvas.height / 2,         // y座標
-  width: 20,                    // 幅
-  height: 40,                   // 高さ
-  color: playerSettings.color,  // 色
-  moveSpeed: playerSettings.moveSpeed,      // 移動速度
-  attackSpeed: playerSettings.attackSpeed,  // 攻撃速度 (秒)
-  attackPower: playerSettings.attackPower,  // 攻撃力
-  dropRate: playerSettings.dropRate,        // 弾の発射率
-  timeSinceLastFire: 0,       // 最後に弾丸を発射してからの経過時間
-  anchor: { x: 0.5, y: 0.5 }, // 中心を基準にする
-  items: [0, 0, 0],           // アイテムの所持数
+// let { canvas } = init();  // canvasを初期化
+// initKeys();  // キーボード入力を初期化
+
+// let playerType = 1;  // プレイヤータイプ
+
+// // プレイヤー
+// // let player = null;
+// const playerSettings = PLAYER_TYPE_SETTINGS[playerType];
+
+// let player = Sprite({
+//   x: 100,                       // x座標
+//   y: canvas.height / 2,         // y座標
+//   width: 20,                    // 幅
+//   height: 40,                   // 高さ
+//   color: playerSettings.color,  // 色
+//   moveSpeed: playerSettings.moveSpeed,      // 移動速度
+//   attackSpeed: playerSettings.attackSpeed,  // 攻撃速度 (秒)
+//   attackPower: playerSettings.attackPower,  // 攻撃力
+//   dropRate: playerSettings.dropRate,        // 弾の発射率
+//   timeSinceLastFire: 0,       // 最後に弾丸を発射してからの経過時間
+//   anchor: { x: 0.5, y: 0.5 }, // 中心を基準にする
+//   items: [0, 0, 0],           // アイテムの所持数
   
-  update(dt) {
-    this.timeSinceLastFire += dt;  // 経過時間を更新
-    if (this.timeSinceLastFire >= this.attackSpeed) {
-      fireBullet(this.x, this.y, 10, this.attackPower); // 弾を発射
-      this.timeSinceLastFire = 0;     // タイマーをリセット
-    }
-  }
-});
+//   update(dt) {
+//     this.timeSinceLastFire += dt;  // 経過時間を更新
+//     if (this.timeSinceLastFire >= this.attackSpeed) {
+//       fireBullet(this.x, this.y, 10, this.attackPower); // 弾を発射
+//       this.timeSinceLastFire = 0;     // タイマーをリセット
+//     }
+//   }
+// });
 
-// 弾丸のプール
-let bulletPool = Pool({
-  create: Sprite,
-  maxSize: 20,  // 最大数
-});
+// // 弾丸のプール
+// let bulletPool = Pool({
+//   create: Sprite,
+//   maxSize: 20,  // 最大数
+// });
 
-// 敵のプール
-let enemyPool = Pool({
-  create: Sprite, // または、カスタムの Enemy クラス
-  maxSize: 20,    // 敵の最大数 (調整可能)
-});
+// // 敵のプール
+// let enemyPool = Pool({
+//   create: Sprite, // または、カスタムの Enemy クラス
+//   maxSize: 20,    // 敵の最大数 (調整可能)
+// });
 
-// 陣地
-let base = Sprite({
-  x: 0,
-  y: 0,
-  color: 'gray',
-  width: 200,
-  height: canvas.height,
-  health: 1200    // 耐久値
-});
+// // 陣地
+// let base = Sprite({
+//   x: 0,
+//   y: 0,
+//   color: 'gray',
+//   width: 200,
+//   height: canvas.height,
+//   health: 1200    // 耐久値
+// });
 
-// アイテム2(ガバい)
-let item2 = Sprite({
-  x: 0,
-  y: 0,
-  color: 'darkred',
-  width: 10,
-  height: 50,
-  damage: 500,
-  anchor: { x: 0, y: 0.5 },
-  dx: 0,
-  ttl: 0,  // 存在時間
-  // timeSinceFire: 0,       // 弾丸を発射してからの経過時間
-  update() {
-    this.width *= 2;
-    if (this.width >= canvas.width) {
-      this.width /= 2;
-    }
-    if (this.width < 20) {
-      this.ttl = 0;
-    }
-    const enemies = enemyPool.getAliveObjects().filter(enemy => collides(this, enemy));
-    if (enemies.length > 0) {
-      enemies.forEach(enemy => {
-        enemy.health -= this.damage;
-        if (enemy.health <= 0) {
-          enemy.ttl = 0;
-        }
-      });
-    }
-  }
-});
+// // アイテム2(ガバい)
+// let item2 = Sprite({
+//   x: 0,
+//   y: 0,
+//   color: 'darkred',
+//   width: 10,
+//   height: 50,
+//   damage: 500,
+//   anchor: { x: 0, y: 0.5 },
+//   dx: 0,
+//   ttl: 0,  // 存在時間
+//   // timeSinceFire: 0,       // 弾丸を発射してからの経過時間
+//   update() {
+//     this.width *= 2;
+//     if (this.width >= canvas.width) {
+//       this.width /= 2;
+//     }
+//     if (this.width < 20) {
+//       this.ttl = 0;
+//     }
+//     const enemies = enemyPool.getAliveObjects().filter(enemy => collides(this, enemy));
+//     if (enemies.length > 0) {
+//       enemies.forEach(enemy => {
+//         enemy.health -= this.damage;
+//         if (enemy.health <= 0) {
+//           enemy.ttl = 0;
+//         }
+//       });
+//     }
+//   }
+// });
 
-// スコア
-let score = Text({
-  text: 'Score: ' + base.health,
-  font: '32px Arial',
-  color: 'black',
-  x: 16,
-  y: 16,
-  anchor: {x: 0, y: 0},
-  textAlign: 'center'
-});
-// アイテムの所持数
-let itemText = Text({
-  text: 'Items: ' + player.items.join(', '),
-  font: '16px Arial',
-  color: 'black',
-  x: 16,
-  y: 48,
-  anchor: {x: 0, y: 0},
-  textAlign: 'center'
-});
+// // スコア
+// let score = Text({
+//   text: 'Score: ' + base.health,
+//   font: '32px Arial',
+//   color: 'black',
+//   x: 16,
+//   y: 16,
+//   anchor: {x: 0, y: 0},
+//   textAlign: 'center'
+// });
+// // アイテムの所持数
+// let itemText = Text({
+//   text: 'Items: ' + player.items.join(', '),
+//   font: '16px Arial',
+//   color: 'black',
+//   x: 16,
+//   y: 48,
+//   anchor: {x: 0, y: 0},
+//   textAlign: 'center'
+// });
 
 
-// 弾丸を発射する関数
-const fireBullet = (x, y, dx, damage) => {
-  bulletPool.get({  // プールから取得
-    x: x,
-    y: y,
-    width: 10,
-    height: 5,
-    color: 'black',
-    ttl: 120, // 存在時間
-    dx: dx,   // 速度
-    anchor: { x: 0.5, y: 0.5 },
-    damage: damage,
-  });
-};
+// // 弾丸を発射する関数
+// const fireBullet = (x, y, dx, damage) => {
+//   bulletPool.get({  // プールから取得
+//     x: x,
+//     y: y,
+//     width: 10,
+//     height: 5,
+//     color: 'black',
+//     ttl: 120, // 存在時間
+//     dx: dx,   // 速度
+//     anchor: { x: 0.5, y: 0.5 },
+//     damage: damage,
+//   });
+// };
 
-// 敵を生成する関数 (game.js などで)
-function spawnEnemy(phase, difficulty, enemyType) {
-  const settings = ENEMY_SETTINGS[enemyType]; // タイプ別の設定
-  enemyPool.get({
-    x: canvas.width,
-    y: randInt(0, canvas.height - 30), // ランダムなy座標
-    enemyType: enemyType,
-    width: settings.width,
-    height: settings.height,
-    color: settings.color,
-    dx: settings.speed,      // 敵の速度
-    health: settings.health, // 敵の体力
-    attack: settings.attack, // 敵の攻撃力
+// // 敵を生成する関数 (game.js などで)
+// function spawnEnemy(phase, difficulty, enemyType) {
+//   const settings = ENEMY_SETTINGS[enemyType]; // タイプ別の設定
+//   enemyPool.get({
+//     x: canvas.width,
+//     y: randInt(0, canvas.height - 30), // ランダムなy座標
+//     enemyType: enemyType,
+//     width: settings.width,
+//     height: settings.height,
+//     color: settings.color,
+//     dx: settings.speed,      // 敵の速度
+//     health: settings.health, // 敵の体力
+//     attack: settings.attack, // 敵の攻撃力
     
-    // update() {
-    //   this.advance();
-    // },
-  });
-}
+//     // update() {
+//     //   this.advance();
+//     // },
+//   });
+// }
 
-let loop = GameLoop({  // ゲームループ
-  update: function(dt) {
-    const enemies = enemyPool.getAliveObjects();
-    const bullets = bulletPool.getAliveObjects();
+// let loop = GameLoop({  // ゲームループ
+//   update: function(dt) {
+//     const enemies = enemyPool.getAliveObjects();
+//     const bullets = bulletPool.getAliveObjects();
     
-    // プレイヤーの操作
-    if((keyPressed('arrowup') || keyPressed('w')) && player.y > player.height / 2) {
-      console.log('up');
-      player.y -= player.moveSpeed;
-    } else if((keyPressed('arrowdown') || keyPressed('s')) && player.y < canvas.height - player.height / 2) {
-      console.log('down');
-      player.y += player.moveSpeed;
-    };
+//     // プレイヤーの操作
+//     if((keyPressed('arrowup') || keyPressed('w')) && player.y > player.height / 2) {
+//       console.log('up');
+//       player.y -= player.moveSpeed;
+//     } else if((keyPressed('arrowdown') || keyPressed('s')) && player.y < canvas.height - player.height / 2) {
+//       console.log('down');
+//       player.y += player.moveSpeed;
+//     };
     
-    // アイテムの使用
-    if(keyPressed('1') && player.items[0] > 0) {
-      player.items[0] -= 1;
-      player.attackPower += 50;
-    } else if(keyPressed('2') && player.items[1] > 0) {
-      player.items[1] -= 1;
-      item2.x = player.x + player.width;
-      item2.y = player.y;
-      item2.ttl = 120;
-    } else if(keyPressed('3') && player.items[2] > 0) {
-      player.items[2] -= 1;
-      base.health < 1100 ? base.health += 100 : base.health = 1200;
-    }
+//     // アイテムの使用
+//     if(keyPressed('1') && player.items[0] > 0) {
+//       player.items[0] -= 1;
+//       player.attackPower += 50;
+//     } else if(keyPressed('2') && player.items[1] > 0) {
+//       player.items[1] -= 1;
+//       item2.x = player.x + player.width;
+//       item2.y = player.y;
+//       item2.ttl = 120;
+//     } else if(keyPressed('3') && player.items[2] > 0) {
+//       player.items[2] -= 1;
+//       base.health < 1100 ? base.health += 100 : base.health = 1200;
+//     }
     
-    // 敵の衝突判定
-    enemies.forEach(enemy => {
-      const bullet = bullets.find(bullet => collides(bullet, enemy));
+//     // 敵の衝突判定
+//     enemies.forEach(enemy => {
+//       const bullet = bullets.find(bullet => collides(bullet, enemy));
       
-      if(collides(enemy, base)) { // 陣地との衝突判定
-        base.health -= enemy.attack;
-        enemy.ttl = 0;
-      } else if (bullet) {        // 弾丸との衝突判定
-        enemy.color = 'white';    // ヒットエフェクト
-        enemy.health -= bullet.damage;
-        if (enemy.health <= 0) {  // 敵が倒された場合の処理
-          enemy.ttl = 0;
-          if (Math.random() < player.dropRate) {
-            player.items[randInt(0, player.items.length - 1)] += 1;  // アイテムをドロップ
-          }
-        }
-        bullet.ttl = 0;
-      } else {
-        enemy.color = ENEMY_SETTINGS[enemy.enemyType].color;
-      }
-    }, this);
+//       if(collides(enemy, base)) { // 陣地との衝突判定
+//         base.health -= enemy.attack;
+//         enemy.ttl = 0;
+//       } else if (bullet) {        // 弾丸との衝突判定
+//         enemy.color = 'white';    // ヒットエフェクト
+//         enemy.health -= bullet.damage;
+//         if (enemy.health <= 0) {  // 敵が倒された場合の処理
+//           enemy.ttl = 0;
+//           if (Math.random() < player.dropRate) {
+//             player.items[randInt(0, player.items.length - 1)] += 1;  // アイテムをドロップ
+//           }
+//         }
+//         bullet.ttl = 0;
+//       } else {
+//         enemy.color = ENEMY_SETTINGS[enemy.enemyType].color;
+//       }
+//     }, this);
     
-    // 敵の生成
-    if (enemies.length < 10) {
-      spawnEnemy(1, 1, randInt(1, 5));
-    }
+//     // 敵の生成
+//     if (enemies.length < 10) {
+//       spawnEnemy(1, 1, randInt(1, 5));
+//     }
     
-    // スコアの更新
-    score.text = 'Score: ' + base.health;
-    itemText.text = 'Items: ' + player.items.join(', ');
+//     // スコアの更新
+//     score.text = 'Score: ' + base.health;
+//     itemText.text = 'Items: ' + player.items.join(', ');
     
-    base.update();
-    player.update(dt);
-    enemyPool.update();
-    bulletPool.update();
-    item2.update();
-  },
-  render: function() {
-    base.render();
-    player.render();  // スプライトを描画
-    enemyPool.render();
-    bulletPool.render();
-    score.render();
-    itemText.render();
-    item2.render();
-  }
-});
+//     base.update();
+//     player.update(dt);
+//     enemyPool.update();
+//     bulletPool.update();
+//     item2.update();
+//   },
+//   render: function() {
+//     base.render();
+//     player.render();  // スプライトを描画
+//     enemyPool.render();
+//     bulletPool.render();
+//     score.render();
+//     itemText.render();
+//     item2.render();
+//   }
+// });
 
-loop.start();  // ゲームループを開始
+// loop.start();  // ゲームループを開始

@@ -1,4 +1,4 @@
-import { Text, Button } from 'kontra';
+import { Text, Button, Grid } from '../../node_modules/kontra/kontra.mjs';
 
 export class StartScreen {
   constructor(game) {
@@ -7,39 +7,80 @@ export class StartScreen {
     this.playerTypes = ['Type1', 'Type2', 'Type3'];
     this.selectedDifficulty = 'Normal'; // 初期難易度
     this.selectedPlayerType = 'Type1';   // 初期プレイヤータイプ
-
+    
+    // テキストのオプション
+    this.textOptions = {
+      color: 'white',
+      font: '20px Arial, sans-serif'
+    };
+    
     // 難易度選択ドロップダウン (簡易版)
-    this.difficultyText = Text({
-        x: 100,
-        y: 50,
-        text: `Difficulty: ${this.selectedDifficulty}`,
-        font: '20px Arial',
-        color: 'white',
-        onDown: () => {
-            let currentIndex = this.difficulties.indexOf(this.selectedDifficulty);
-            this.selectedDifficulty = this.difficulties[(currentIndex + 1) % this.difficulties.length];
-            this.difficultyText.text = `Difficulty: ${this.selectedDifficulty}`;
-        }
-
+    this.difficultyCaption = Text({
+      x: 100,
+      y: 50,
+      text: '難易度',
+      font: '20px Arial',
+      color: 'white'
     });
+    this.difficultyPrevButton = Button({
+      text: {
+        text: '<',
+        ...this.textOptions
+      },
+      onDown: () => {
+        // 選択された難易度を取得
+        this.selectedDifficulty = this.difficulties[(this.difficulties.indexOf(this.selectedDifficulty) - 1 + this.difficulties.length) % this.difficulties.length];
+      }
+    });
+    this.difficultyNextButton = Button({
+      text: {
+        text: '>',
+        ...this.textOptions
+      },
+      onDown: () => {
+        // 選択された難易度を取得
+        this.selectedDifficulty = this.difficulties[(this.difficulties.indexOf(this.selectedDifficulty) + 1) % this.difficulties.length];
+      }
+    });
+    this.difficultyText = Text({
+      width: 100,
+      text: `${this.selectedDifficulty}`,
+      ...this.textOptions,
+      textAlign: 'center'
+    });
+    this.difficultySelect = Grid({
+      x: 100,
+      y: 100,
+      rowGap: 5,
+      colGap: 5,
+      flow: 'row',
+      anchor: { x: 0, y: 0.5 },
+      children: [
+        this.difficultyPrevButton,
+        this.difficultyText,
+        this.difficultyNextButton
+      ]
+    });
+    
+    
     // 機体選択
     this.playerTypeText = Text({
-        x: 100,
-        y: 100,
-        text: `Player Type: ${this.selectedPlayerType}`,
-        font: '20px Arial',
-        color: 'white',
-        onDown: () => {
-            let currentIndex = this.playerTypes.indexOf(this.selectedPlayerType);
-            this.selectedPlayerType = this.playerTypes[(currentIndex + 1) % this.playerTypes.length];
-            this.playerTypeText.text = `Player Type: ${this.selectedPlayerType}`;
+      x: 100,
+      y: 200,
+      text: `Player Type: ${this.selectedPlayerType}`,
+      font: '20px Arial',
+      color: 'white',
+      onDown: () => {
+        let currentIndex = this.playerTypes.indexOf(this.selectedPlayerType);
+        this.selectedPlayerType = this.playerTypes[(currentIndex + 1) % this.playerTypes.length];
+        this.playerTypeText.text = `Player Type: ${this.selectedPlayerType}`;
         }
     });
 
     // ヘルプボタン (簡易版)
     this.helpButton = Button({
       x: 100,
-      y: 150,
+      y: 250,
       text: {
         text: 'Help',
         color: 'white',
@@ -54,7 +95,7 @@ export class StartScreen {
     // ゲーム開始ボタン
     this.startButton = Button({
       x: 100,
-      y: 200,
+      y: 300,
       text: {
         text: 'Start Game',
         color: 'white',
@@ -73,14 +114,23 @@ export class StartScreen {
   }
 
   update() {
-    this.difficultyText.update();
+    this.difficultyText.text = this.selectedDifficulty;
+    
+    // this.difficultyText.update();
+    // this.difficultyPrevButton.update();
+    // this.difficultyNextButton.update();
+    this.difficultySelect.update();
     this.playerTypeText.update();
     this.helpButton.update();
     this.startButton.update();
   }
 
   render() {
-    this.difficultyText.render();
+    this.difficultyCaption.render();
+    // this.difficultyPrevButton.render();
+    // this.difficultyNextButton.render();
+    // this.difficultyText.render();
+    this.difficultySelect.render();
     this.playerTypeText.render();
     this.helpButton.render();
     this.startButton.render();
