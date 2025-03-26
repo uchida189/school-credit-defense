@@ -21,26 +21,35 @@ export const game = {
         this.currentScene = this.startScreen;
     },
 
-    switchToScene(sceneName) {
-        // シーンの終了処理 (必要に応じて)
-        if (this.currentScene.deinit) {
-            this.currentScene.deinit();
+    // シーンの切り替えを行う関数
+    switchToScene(sceneName, options = {}) {
+      // シーンの終了処理 (必要に応じて)
+      if (this.currentScene.deinit) {
+        this.currentScene.deinit();
+      }
+      
+      let nextScene = null;
+      
+      // 次のシーンを設定
+      switch (sceneName) {
+          case 'start':
+            nextScene = this.startScreen;
+            break;
+          // case 'game':
+          //   nextScene = this.gameScreen;
+          //   break;
+          // ...
         }
-
-        // シーンの切り替え
-        switch (sceneName) {
-            case 'start':
-                this.currentScene = this.startScreen;
-                break;
-            // case 'game':
-            //     this.currentScene = this.gameScreen;
-            //     break;
-            // 他のシーン (ゲームオーバー画面など) もここに追加
-        }
-
-        // 新しいシーンの初期化処理 (必要に応じて)
-        if (this.currentScene.init) {
-            this.currentScene.init();
+        
+        // 次のシーンが見つかった場合
+        if (nextScene) {
+          this.currentScene = nextScene;
+          // 新しいシーンの init メソッドを呼び出し、options を渡す
+          if (this.currentScene.init) {
+            this.currentScene.init(options);
+          }
+        } else {
+          console.error(`Scene "${sceneName}" not found!`);
         }
     },
 
