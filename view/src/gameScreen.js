@@ -1,12 +1,14 @@
-import { keyPressed } from '../../node_modules/kontra/kontra.mjs';
+import { keyPressed, randInt } from '../../node_modules/kontra/kontra.mjs';
 import { Player } from './player.js';
 import { Base } from './base.js';
+import { Enemy } from './enemy.js';
 
 export class GameScreen {
     constructor(game) {
 			this.game = game;
 			this.player = null;
 			this.base = null;
+			this.enemy = null;
 			this.difficulty = 1;
 			this.playerType = 1;
     }
@@ -17,6 +19,7 @@ export class GameScreen {
 			this.playerType = options.playerType;
 			this.player = new Player(options.playerType, this.game.canvas); // 選択されたタイプ
 			this.base = new Base(this.game.canvas);
+			this.enemy = new Enemy(this.game.canvas);
     }
 		
     update(dt) {
@@ -26,16 +29,20 @@ export class GameScreen {
 			} else if ((keyPressed('arrowdown') || keyPressed('s')) && this.player.sprite.y < this.game.canvas.height - this.player.sprite.height / 2) {
 				this.player.moveDown();
 			}
+			
+			this.enemy.spawnEnemy(randInt(1, 5));
 
 			// // プレイヤーが画面外に出ないようにする
 			// this.player.sprite.y = Math.max(0, this.player.sprite.y);
 			// this.player.sprite.y = Math.min(this.game.canvas.height - this.player.sprite.height, this.player.sprite.y);
-			this.player.update(dt)
+			this.player.update(dt);
+			this.enemy.update();
     }
 
     render() {
 			this.base.render();
 			this.player.render();
+			this.enemy.render();
     }
 }
 
