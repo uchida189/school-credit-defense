@@ -139,7 +139,10 @@ export class StartScreen {
         const selectedDifficultyValue = difficultyMap[this.selectedDifficulty];
         const selectedPlayerTypeValue = playerTypeMap[this.selectedPlayerType];
 
-        this.game.switchToGameScreen(selectedDifficultyValue, selectedPlayerTypeValue);
+        this.game.switchToScreen('game', {
+          difficulty: selectedDifficultyValue,
+          playerType: selectedPlayerTypeValue
+        });
       }
     });
   }

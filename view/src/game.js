@@ -1,6 +1,6 @@
 // src/game.js (シーンマネージャー)
 import { StartScreen } from './startScreen.js';
-// import { GameScreen } from './gameScreen.js';
+import { GameScreen } from './gameScreen.js';
 
 export const game = {
     canvas: null,
@@ -10,46 +10,45 @@ export const game = {
     gameScreen: null,
 
     init(canvas, loop) {
-        this.canvas = canvas;
-        this.loop = loop;
+      this.canvas = canvas;
+      this.loop = loop;
 
-        // シーンの初期化
-        this.startScreen = new StartScreen(this);
-        // this.gameScreen = new GameScreen(this);
+      // シーンの初期化
+      this.startScreen = new StartScreen(this);
+      this.gameScreen = new GameScreen(this);
 
-        // 最初のシーンを設定
-        this.currentScene = this.startScreen;
+      // 最初のシーンを設定
+      this.currentScene = this.startScreen;
     },
 
     // シーンの切り替えを行う関数
-    switchToScene(sceneName, options = {}) {
+    switchToScreen(screenName, options = {}) {
       // シーンの終了処理 (必要に応じて)
       if (this.currentScene.deinit) {
         this.currentScene.deinit();
       }
       
       let nextScene = null;
-      
       // 次のシーンを設定
-      switch (sceneName) {
+      switch (screenName) {
           case 'start':
             nextScene = this.startScreen;
             break;
-          // case 'game':
-          //   nextScene = this.gameScreen;
-          //   break;
+          case 'game':
+            nextScene = this.gameScreen;
+            break;
           // ...
         }
         
         // 次のシーンが見つかった場合
         if (nextScene) {
-          this.currentScene = nextScene;
+          this.currentScene = nextScene;  // シーンを切り替え
           // 新しいシーンの init メソッドを呼び出し、options を渡す
           if (this.currentScene.init) {
             this.currentScene.init(options);
           }
         } else {
-          console.error(`Scene "${sceneName}" not found!`);
+          console.error(`Scene "${screenName}" not found!`);
         }
     },
 
