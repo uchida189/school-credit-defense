@@ -1,4 +1,4 @@
-import { Sprite } from 'kontra';
+import { Sprite } from '../../node_modules/kontra/kontra.mjs';
 
 export class Base {
     constructor(canvas) {
@@ -6,7 +6,7 @@ export class Base {
             x: 0,
             y: 0,
             color: 'gray',
-            width: 50,          // 陣地の幅
+            width: 200,          // 陣地の幅
             height: canvas.height, // 画面の高さ
             health: 1200      // 耐久値
         });

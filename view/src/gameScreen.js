@@ -1,6 +1,6 @@
 import { keyPressed } from '../../node_modules/kontra/kontra.mjs';
 import { Player } from './player.js';
-// import { Base } from './base.js';
+import { Base } from './base.js';
 
 export class GameScreen {
     constructor(game) {
@@ -16,19 +16,16 @@ export class GameScreen {
 			this.difficulty = options.difficulty;
 			this.playerType = options.playerType;
 			this.player = new Player(options.playerType, this.game.canvas); // 選択されたタイプ
-			// this.base = new Base(this.game.canvas);
+			this.base = new Base(this.game.canvas);
     }
 		
     update(dt) {
 			// プレイヤーの移動
-			if ((keyPressed('arrowup') || keyPressed('w'))) {
+			if ((keyPressed('arrowup') || keyPressed('w')) && this.player.sprite.y > this.player.sprite.height / 2) {
 				this.player.moveUp();
 			} else if ((keyPressed('arrowdown') || keyPressed('s')) && this.player.sprite.y < this.game.canvas.height - this.player.sprite.height / 2) {
 				this.player.moveDown();
-			} 
-			// else {
-			// 	this.player.stopMoving();
-			// }
+			}
 
 			// // プレイヤーが画面外に出ないようにする
 			// this.player.sprite.y = Math.max(0, this.player.sprite.y);
@@ -37,7 +34,7 @@ export class GameScreen {
     }
 
     render() {
-			// this.base.render();
+			this.base.render();
 			this.player.render();
     }
 }
