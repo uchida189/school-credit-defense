@@ -1,4 +1,4 @@
-import { keyPressed, randInt } from '../../node_modules/kontra/kontra.mjs';
+import { keyPressed, randInt, Button, Text, Grid } from '../../node_modules/kontra/kontra.mjs';
 import { Player } from './player.js';
 import { Base } from './base.js';
 import { Enemy } from './enemy.js';
@@ -13,6 +13,51 @@ export class GameScreen {
 			this.bullet = null;
 			this.difficulty = 1;
 			this.playerType = 1;
+			
+			// テキストのオプション
+			this.textOptions = {
+				color: 'white',
+				font: '20px Arial, sans-serif'
+			};
+			
+			// スコア
+			this.score = Text({
+				x: 10,
+				y: 10,
+				text: 'スコア: ',
+				...this.textOptions
+			});
+			
+			// スタートに戻るボタン
+			this.restartButton = Button({
+				x: this.game.canvas.width - 10,
+				y: 10,
+				anchor: { x: 1, y: 0 },
+				text: {
+					text: 'リスタート',
+					textAlign: 'end',
+					...this.textOptions
+				},
+				onDown: () => {
+					// 選択された難易度を取得
+					this.game.switchToScreen('start', {});
+				}
+			});
+			
+			// // アイテムの所持数
+			// this.items = Grid({
+			// 	x: 0,
+			// 	y: 10,
+			// 	width: this.game.canvas.width,
+			// 	flow: 'row',
+			// 	colGap: 5,
+			// 	textAlign: 'center',
+			// 	anchor: { x: 0, y: 0 },
+			// 	children: [
+			// 		this.score,
+			// 		this.restartButton
+			// 	]
+			// });
     }
     
 		// シーンの初期化
@@ -45,6 +90,11 @@ export class GameScreen {
 			this.player.update(dt);
 			this.enemy.update();
 			this.bullet.update();
+			
+			// スコアの更新
+			this.score.text = 'スコア: ' + this.base.getHealth();
+			this.score.update();
+			this.restartButton.update();
     }
 
     render() {
@@ -52,6 +102,10 @@ export class GameScreen {
 			this.player.render();
 			this.enemy.render();
 			this.bullet.render();
+			
+			this.score.render();
+			this.restartButton.render();
+			// this.items.render();
     }
 }
 

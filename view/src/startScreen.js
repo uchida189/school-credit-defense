@@ -50,7 +50,6 @@ export class StartScreen {
     this.difficultySelect = Grid({
       x: 100,
       y: 100,
-      rowGap: 5,
       colGap: 5,
       flow: 'row',
       anchor: { x: 0, y: 0.5 },
@@ -97,7 +96,6 @@ export class StartScreen {
     this.playerTypeSelect = Grid({
       x: 100,
       y: 200,
-      rowGap: 5,
       colGap: 5,
       flow: 'row',
       anchor: { x: 0, y: 0.5 },
