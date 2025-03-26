@@ -1,8 +1,9 @@
-import { keyPressed, randInt, Button, Text, Grid } from '../../node_modules/kontra/kontra.mjs';
+import { keyPressed, randInt, Button, Text, Grid, collides } from '../../node_modules/kontra/kontra.mjs';
 import { Player } from './player.js';
 import { Base } from './base.js';
 import { Enemy } from './enemy.js';
 import { Bullet } from './bullet.js';
+import { ENEMY_SETTINGS } from './constants.js';
 
 export class GameScreen {
     constructor(game) {
@@ -65,12 +66,15 @@ export class GameScreen {
 			this.difficulty = options.difficulty;
 			this.playerType = options.playerType;
 			this.base = new Base(this.game.canvas);
-			this.enemy = new Enemy(this.game.canvas);
+			this.enemy = new Enemy(this.game.canvas, this.base);
 			this.bullet = new Bullet(this.game.canvas);
 			this.player = new Player(options.playerType, this.bullet, this.game.canvas);
     }
 		
     update(dt) {
+			const enemies = this.enemy.getAliveObjects();
+			const bullets = this.bullet.getAliveObjects();
+			
 			// プレイヤーの移動
 			if ((keyPressed('arrowup') || keyPressed('w')) && this.player.sprite.y > this.player.sprite.height / 2) {
 				this.player.moveUp();
@@ -82,11 +86,36 @@ export class GameScreen {
 			// 	this.player.fireMegaBullet();
 			// }
 			
+			// 敵の衝突判定
+			enemies.forEach(enemy => {
+				const bullet = bullets.find(bullet => collides(bullet, enemy));
+				
+				// 陣地との衝突判定
+				if(collides(enemy, this.base.sprite)) {
+					this.base.takeDamage(enemy.attack);
+					enemy.ttl = 0;
+				} 
+				// 弾丸との衝突判定
+				else if (bullet) {
+					enemy.color = 'white';		// ヒットエフェクト
+					enemy.health -= bullet.damage;
+					if (enemy.health <= 0) {	// 敵が倒された場合の処理
+						enemy.ttl = 0;
+					}
+					bullet.ttl = 0;
+				}
+				// 衝突していない場合
+				else {
+					enemy.color = ENEMY_SETTINGS[enemy.enemyType].color;
+				}
+			});
+			
 			this.enemy.spawnEnemy(randInt(1, 5));
-
+			
 			// // プレイヤーが画面外に出ないようにする
 			// this.player.sprite.y = Math.max(0, this.player.sprite.y);
 			// this.player.sprite.y = Math.min(this.game.canvas.height - this.player.sprite.height, this.player.sprite.y);
+			this.base.update();
 			this.player.update(dt);
 			this.enemy.update();
 			this.bullet.update();

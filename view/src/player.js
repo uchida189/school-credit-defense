@@ -1,6 +1,5 @@
 import { Sprite } from '../../node_modules/kontra/kontra.mjs';
 import { PLAYER_TYPE_SETTINGS } from './constants.js';
-import { Bullet } from './bullet.js';
 
 export class Player {
     constructor(playerType, bullet, canvas) {

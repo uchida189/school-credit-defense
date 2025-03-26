@@ -3,8 +3,9 @@ import { ENEMY_SETTINGS } from './constants.js';
 
 // 敵のクラス
 export class Enemy {
-  constructor(canvas) {
+  constructor(canvas, base) {
     this.canvas = canvas;
+    this.base = base;
     // 敵のプール
     this.pool = Pool({
       create: Sprite, // または、カスタムの Enemy クラス
@@ -19,7 +20,10 @@ export class Enemy {
   render() {
     this.pool.render();
   }
-
+  
+  getAliveObjects() {
+    return this.pool.getAliveObjects();
+  }
   
    // 敵を生成する関数 (game.js などで)
   spawnEnemy(enemyType) {
@@ -34,10 +38,8 @@ export class Enemy {
       dx: settings.speed,      // 敵の速度
       health: settings.health, // 敵の体力
       attack: settings.attack, // 敵の攻撃力
-      
-      // update() {
-      //   this.advance();
-      // },
+      anchor: { x: 0.5, y: 0.5 },
+      // ttl: this.canvas.width / settings.speed, // 存在時間
     });
   }
 }

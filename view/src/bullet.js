@@ -17,6 +17,10 @@ export class Bullet {
   render() {
     this.pool.render();
   }
+  
+  getAliveObjects() { 
+    return this.pool.getAliveObjects();
+  }
 
   // 弾丸を発射する関数
   fireBullet = (playerX, playerY, dx, damage) => {

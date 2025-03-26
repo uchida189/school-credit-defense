@@ -111,7 +111,7 @@ export class StartScreen {
       x: 100,
       y: 250,
       text: {
-        text: 'Help',
+        text: '操作説明',
         color: 'white',
         font: '20px Arial'
       },
@@ -126,7 +126,7 @@ export class StartScreen {
       x: 100,
       y: 300,
       text: {
-        text: 'Start Game',
+        text: 'ゲームスタート',
         color: 'white',
         font: '20px Arial'
       },
