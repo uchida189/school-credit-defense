@@ -6,25 +6,25 @@ export class Enemy {
   constructor(canvas) {
     this.canvas = canvas;
     // 敵のプール
-    this.enemyPool = Pool({
+    this.pool = Pool({
       create: Sprite, // または、カスタムの Enemy クラス
       maxSize: 20,    // 敵の最大数 (調整可能)
     });
   }
   
   update() {
-    this.enemyPool.update();
+    this.pool.update();
   }
 
   render() {
-    this.enemyPool.render();
+    this.pool.render();
   }
 
   
    // 敵を生成する関数 (game.js などで)
   spawnEnemy(enemyType) {
     const settings = ENEMY_SETTINGS[enemyType]; // タイプ別の設定
-    this.enemyPool.get({
+    this.pool.get({
       x: this.canvas.width,
       y: randInt(0, this.canvas.height - 30), // ランダムなy座標
       enemyType: enemyType,
