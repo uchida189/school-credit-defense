@@ -80,6 +80,9 @@ export class GameScreen {
 			this.enemy = new Enemy(this.game.canvas, this.base);
 			this.bullet = new Bullet(this.game.canvas);
 			this.player = new Player(options.playerType, this.bullet, this.game.canvas);
+			this.timer = 0;
+			this.mounth = 4;
+			this.date = 1;
     }
 		
     update(dt) {
