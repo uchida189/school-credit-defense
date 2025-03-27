@@ -158,15 +158,7 @@ export class StartScreen {
         font: '20px Arial'
       },
       onDown: () => {
-        // // 難易度とプレイヤータイプを数値に変換
-        // const difficultyMap = { '情報経営': 1, '機械科': 2, '電気科': 3 };
-        // const playerTypeMap = { '真面目': 1, '詰め込み': 2, 'コミュ強': 3 };
-        // const selectedDifficultyValue = difficultyMap[this.selectedDifficulty];
-        // const selectedPlayerTypeValue = playerTypeMap[this.selectedPlayerType];
-
         this.game.switchToScreen('game', {
-          // difficulty: selectedDifficultyValue,
-          // playerType: selectedPlayerTypeValue
           difficulty: this.selectedDifficulty,
           playerType: this.selectedPlayerType
         });

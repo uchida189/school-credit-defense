@@ -14,6 +14,9 @@ export class GameScreen {
 			this.bullet = null;
 			this.difficulty = 1;
 			this.playerType = 1;
+			this.timer = 0;		// タイマー
+			this.mounth = 4;	// 月
+			this.date = 1;		// 日付
 			
 			// テキストのオプション
 			this.textOptions = {
@@ -22,10 +25,18 @@ export class GameScreen {
 			};
 			
 			// スコア
-			this.score = Text({
+			this.scoreText = Text({
 				x: 10,
 				y: 10,
 				text: 'スコア: ',
+				...this.textOptions
+			});
+			
+			// フェーズ
+			this.dateText = Text({
+				x: 10,
+				y: 40,
+				text: '4月1日',
 				...this.textOptions
 			});
 			
@@ -75,6 +86,21 @@ export class GameScreen {
 			const enemies = this.enemy.getAliveObjects();
 			const bullets = this.bullet.getAliveObjects();
 			
+			// タイマーの更新
+			this.timer += dt;
+			
+			// 1秒経過したら日付を進める
+			this.date = Math.floor(this.timer) + 1;
+			if(this.date === 31 + this.mounth % 2)	{
+				this.timer = 0;
+				this.date = 1;
+				this.mounth++;
+			}
+			// 7月を過ぎたら終了
+			if(this.mounth > 7) {
+				this.game.switchToScreen('start', {});
+			}
+			
 			// プレイヤーの移動
 			if ((keyPressed('arrowup') || keyPressed('w')) && this.player.sprite.y > this.player.sprite.height / 2) {
 				this.player.moveUp();
@@ -121,9 +147,11 @@ export class GameScreen {
 			this.bullet.update();
 			
 			// スコアの更新
-			this.score.text = 'スコア: ' + this.base.getHealth();
-			this.score.update();
-			this.restartButton.update();
+			this.scoreText.text = 'スコア: ' + this.base.getHealth();
+			this.dateText.text = `${this.mounth}月${this.date}日`;
+			this.scoreText.update();
+			this.dateText.update();
+			// this.restartButton.update();
     }
 
     render() {
@@ -132,7 +160,8 @@ export class GameScreen {
 			this.enemy.render();
 			this.bullet.render();
 			
-			this.score.render();
+			this.scoreText.render();
+			this.dateText.render();
 			this.restartButton.render();
 			// this.items.render();
     }
