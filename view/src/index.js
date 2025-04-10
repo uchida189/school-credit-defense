@@ -1,18 +1,29 @@
-import { init, initKeys, initPointer, GameLoop } from '../../node_modules/kontra/kontra.mjs';
+import { init, initKeys, load, initPointer, GameLoop } from '../../node_modules/kontra/kontra.mjs';
 import { game } from './game.js';
 
-let { canvas, context } = init();
-initKeys();
-initPointer();
+async function main(){
+    let { canvas, context } = init();
+    initKeys();
+    initPointer();
 
-// ゲームループの開始 (game.js に処理を委譲)
-let loop = GameLoop({
-    update: game.update.bind(game),  // 1フレームごとの処理
-    render: game.render.bind(game)   // 1フレームごとの描画処理
-});
+    // ゲームの初期化
+    await load(
+        'view/assets/player1.png',
+        'view/assets/player2.png',
+        'view/assets/player3.png',
+    );
+    console.log('Assets loaded!');
 
-game.init(canvas, loop); // ゲームの初期化処理 (game.js で定義)
-loop.start();
+    // ゲームループの開始 (game.js に処理を委譲)
+    let loop = GameLoop({
+        update: game.update.bind(game),  // 1フレームごとの処理
+        render: game.render.bind(game)   // 1フレームごとの描画処理
+    });
+
+    game.init(canvas, loop); // ゲームの初期化処理 (game.js で定義)
+    loop.start();
+}
+main();
 // import { init, Sprite, Pool, GameLoop, initKeys, keyPressed, collides, randInt, Text } from '../../node_modules/kontra/kontra.mjs';
 // import { ENEMY_SETTINGS, PLAYER_TYPE_SETTINGS } from './constants.js'; //敵のタイプごとの設定
 
