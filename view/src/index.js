@@ -9,12 +9,17 @@ async function main(){
 
     // ゲームの初期化
     await load(
-        // 'view/assets/player1.png',
-        // 'view/assets/player2.png',
-        // 'view/assets/player3.png',
         'assets/player1.png',
         'assets/player2.png',
         'assets/player3.png',
+        'assets/homework.png',
+        'assets/class.png',
+        'assets/experiment.png',
+        'assets/exam.png',
+        'assets/report.png',
+        'assets/mail.png',
+        'assets/drink.png',
+        'assets/kakomon.png',
     );
     console.log('Assets loaded!');
 
