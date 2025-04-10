@@ -138,7 +138,9 @@ export class GameScreen {
 				}
 				// 衝突していない場合
 				else {
-					enemy.color = ENEMY_SETTINGS[enemy.enemyType].color;
+					if(enemy.color !== null) {
+						enemy.color = null;
+					}
 				}
 			});
 			
