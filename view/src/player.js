@@ -7,15 +7,19 @@ export class Player {
         this.playerType = playerType;
         this.bullet = bullet;
         const settings = PLAYER_TYPE_SETTINGS[playerType]; // 定数からプレイヤーのタイプ別設定を取得
+        const playerWidth = 120;
+        const playerHeight = 20;
+        let image = new Image(playerWidth, playerHeight);
+        image.src = `view/assets/player${playerType}.png`; // プレイヤーの画像を取得
 
         this.sprite = Sprite({
           x: 100,    // 陣地内からスタート
           y: canvas.height / 2,   // 画面中央
-          color: settings.color,  // タイプ別の色
-          width: 20,
-          height: 40,
+          // color: settings.color,  // タイプ別の色
+          image: image,
+          width: playerWidth,  // プレイヤーの幅
+          height: playerHeight, // プレイヤーの高さ
           anchor: { x: 0.5, y: 0.5 },   // 中心を基準にする
-          color: settings.color,  // 色
           moveSpeed: settings.moveSpeed,      // 移動速度
           attackSpeed: settings.attackSpeed,  // 攻撃速度 (秒)
           attackPower: settings.attackPower,  // 攻撃力
@@ -23,6 +27,7 @@ export class Player {
           timeSinceLastFire: 0,       // 最後に弾丸を発射してからの経過時間
           items: [0, 0, 0],           // アイテムの所持数
         });
+        console.log('Player created:', this.sprite);
     }
 
     update(dt) {
@@ -36,7 +41,14 @@ export class Player {
     }
 
     render() {
-        this.sprite.render();
+      // const image = new Image();
+      // image.src = 'view/assets/player1.png'; // プレイヤーの画像を取得
+      // // image.onload = () => {
+      // //   this.sprite.image = image;
+      // //   this.sprite.render();
+      // // }
+      // this.sprite.image = image;
+      this.sprite.render();
     }
 
     moveUp() {
@@ -50,7 +62,7 @@ export class Player {
     // stopMoving() {
     
     fireBullet() {
-      this.bullet.fireBullet(this.sprite.x, this.sprite.y, 10, this.sprite.attackPower);
+      this.bullet.fireBullet(this.sprite.x + this.sprite.width / 2, this.sprite.y, 10, this.sprite.attackPower);
     }
     
     // fireMegaBullet() {
