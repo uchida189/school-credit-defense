@@ -130,7 +130,7 @@ export class GameScreen {
 					enemy.health -= bullet.damage;
 					if (enemy.health <= 0) {	// 敵が倒された場合の処理
 						enemy.ttl = 0;
-						if (Math.random() < player.dropRate) {
+						if (Math.random() < this.player.dropRate) {
 							player.items[randInt(0, player.items.length - 1)] += 1;  // アイテムをドロップ
 						}
 					}
