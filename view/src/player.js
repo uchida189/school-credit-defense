@@ -15,7 +15,6 @@ export class Player {
         this.sprite = Sprite({
           x: 100,    // 陣地内からスタート
           y: canvas.height / 2,   // 画面中央
-          // color: settings.color,  // タイプ別の色
           image: image,
           width: playerWidth,  // プレイヤーの幅
           height: playerHeight, // プレイヤーの高さ
@@ -41,13 +40,6 @@ export class Player {
     }
 
     render() {
-      // const image = new Image();
-      // image.src = 'view/assets/player1.png'; // プレイヤーの画像を取得
-      // // image.onload = () => {
-      // //   this.sprite.image = image;
-      // //   this.sprite.render();
-      // // }
-      // this.sprite.image = image;
       this.sprite.render();
     }
 
