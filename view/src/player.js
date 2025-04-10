@@ -10,7 +10,7 @@ export class Player {
         const playerWidth = 120;
         const playerHeight = 20;
         let image = new Image(playerWidth, playerHeight);
-        image.src = `view/assets/player${playerType}.png`; // プレイヤーの画像を取得
+        image.src = `assets/player${playerType}.png`; // プレイヤーの画像を取得
 
         this.sprite = Sprite({
           x: 100,    // 陣地内からスタート

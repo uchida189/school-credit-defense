@@ -1,4 +1,5 @@
 import { init, initKeys, load, initPointer, GameLoop } from '../../node_modules/kontra/kontra.mjs';
+// import { init, initKeys, load, initPointer, GameLoop } from 'kontra';
 import { game } from './game.js';
 
 async function main(){
@@ -8,9 +9,12 @@ async function main(){
 
     // ゲームの初期化
     await load(
-        'view/assets/player1.png',
-        'view/assets/player2.png',
-        'view/assets/player3.png',
+        // 'view/assets/player1.png',
+        // 'view/assets/player2.png',
+        // 'view/assets/player3.png',
+        'assets/player1.png',
+        'assets/player2.png',
+        'assets/player3.png',
     );
     console.log('Assets loaded!');
 
